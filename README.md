@@ -45,14 +45,6 @@
   <img src="showcase/showcase.svg" alt="Appium Android E2E Testing Framework — animated showcase cycling through: intro, POM architecture, test suite, BrowserStack cloud run, and Allure results" width="100%"/>
 </p>
 
-> Five scenes auto-play every 7 seconds: **Intro** → **Framework Architecture** → **Test Suite** → **BrowserStack Cloud** → **Allure Results**
-
-For the full interactive walkthrough open locally:
-
-```bash
-open showcase/appium-mobile-showcase.html
-```
-
 ---
 
 ## What's Tested

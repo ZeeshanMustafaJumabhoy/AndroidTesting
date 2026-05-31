@@ -2,13 +2,13 @@
   <title>Appium Android E2E Testing Framework – Live Showcase</title>
   <defs>
     <style>
-      .sc{opacity:0;animation:sc 35s infinite;}
-      @keyframes sc{0%{opacity:0}3%{opacity:1}17%{opacity:1}20%{opacity:0}100%{opacity:0}}
+      .sc{opacity:0;animation:sc 10s infinite;}
+      @keyframes sc{0%{opacity:0}3%{opacity:1}15%{opacity:1}20%{opacity:0}100%{opacity:0}}
       #s0{animation-delay:0s}
-      #s1{animation-delay:-28s}
-      #s2{animation-delay:-21s}
-      #s3{animation-delay:-14s}
-      #s4{animation-delay:-7s}
+      #s1{animation-delay:-8s}
+      #s2{animation-delay:-6s}
+      #s3{animation-delay:-4s}
+      #s4{animation-delay:-2s}
     </style>
   </defs>
 
