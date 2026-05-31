@@ -41,21 +41,17 @@
 
 ## Live Showcase
 
-An animated, interactive slideshow walks through every layer of the framework — from project structure to live BrowserStack results.
+<p align="center">
+  <img src="showcase/showcase.svg" alt="Appium Android E2E Testing Framework — animated showcase cycling through: intro, POM architecture, test suite, BrowserStack cloud run, and Allure results" width="100%"/>
+</p>
 
-| Showcase | Stack | App |
-|---|---|---|
-| **[Appium Mobile](showcase/appium-mobile-showcase.html)** | Appium · Java · TestNG | Toucher (Android bowls scoring) |
-| [Playwright E2E](showcase/Playwright-e2e.html) | Playwright · TypeScript | VIDIZMO web |
-| [Selenium E2E](showcase/selenium-e2e-showcase.html) | Selenium · C# · MSTest | Advantage e-commerce |
+> Five scenes auto-play every 7 seconds: **Intro** → **Framework Architecture** → **Test Suite** → **BrowserStack Cloud** → **Allure Results**
 
-**Open the Appium showcase locally:**
+For the full interactive walkthrough open locally:
 
 ```bash
 open showcase/appium-mobile-showcase.html
 ```
-
-> The showcase covers: framework intro → POM structure → Login flow → Score/Round flow → BrowserStack cloud run → Allure test results (7 cases, 3 pass / 4 fail) → full Allure overview.
 
 ---
 
