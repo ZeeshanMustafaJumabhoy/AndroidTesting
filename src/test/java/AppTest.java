@@ -1,13 +1,13 @@
+import config.DriverFactory;
 import io.appium.java_client.AppiumDriver;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.PointerInput;
 import org.openqa.selenium.interactions.Sequence;
-import org.openqa.selenium.remote.DesiredCapabilities;
 import org.testng.annotations.*;
 
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.time.Duration;
 import java.util.Collections;
 
@@ -15,30 +15,9 @@ public class AppTest {
 
     private AppiumDriver driver;  // Instance variable instead of static
 
-    // BeforeClass to set up the Appium driver
     @BeforeMethod
-    public void setUp() throws MalformedURLException {
-        openDriver("Android", "Pixel 5", "11281FDD4001CN", "14", "com.toucher", "com.toucher.MainActivity");
-    }
-
-    // Generic driver opening method
-    public void openDriver(String platformName, String deviceName, String udid, String platformVersion, String appPackage, String appActivity) throws MalformedURLException {
-        DesiredCapabilities cap = new DesiredCapabilities();
-
-        // Standard WebDriver capabilities
-        cap.setCapability("platformName", platformName);
-
-        // Appium-specific capabilities with 'appium:' prefix
-        cap.setCapability("appium:deviceName", deviceName);
-        cap.setCapability("appium:udid", udid);
-        cap.setCapability("appium:platformVersion", platformVersion);
-        cap.setCapability("appium:automationName", "uiAutomator2");
-        cap.setCapability("appium:appPackage", appPackage);
-        cap.setCapability("appium:appActivity", appActivity);
-
-        // Appium server URL (ensure Appium server is running on this address)
-        URL url = new URL("http://127.0.0.1:4723/");
-        driver = new AppiumDriver(url, cap);
+    public void setUp(Method method) throws MalformedURLException {
+        driver = DriverFactory.createDriver(method.getName());
     }
 
     // Test method

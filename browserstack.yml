@@ -1,0 +1,17 @@
+userName: ${BROWSERSTACK_USERNAME}
+accessKey: ${BROWSERSTACK_ACCESS_KEY}
+projectName: Toucher App Tests
+buildName: Toucher Build
+parallelsPerPlatform: 1
+
+platforms:
+  - platformName: android
+    deviceName: Google Pixel 8
+    osVersion: "14.0"
+    app: bs://YOUR_APP_ID
+    appPackage: com.toucher
+    appActivity: com.toucher.MainActivity
+
+browserstackLocal: false
+debug: true
+networkLogs: true
