@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Appium × Toucher — Mobile E2E Showcase</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #08080f;
+      padding: 24px 16px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    #stage {
+      width: 100%;
+      max-width: 980px;
+      height: 540px;
+      background: #0d0d14;
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6), 0 2px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    .scene {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+      padding: 20px 24px 28px;
+    }
+    .scene.active { opacity: 1; }
+
+    #particles {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(61, 220, 132, 0.18);
+      animation: float linear infinite;
+    }
+    @keyframes float {
+      0% { transform: translateY(110%) scale(0); opacity: 0; }
+      12% { opacity: 1; }
+      100% { transform: translateY(-16px) scale(1); opacity: 0; }
+    }
+
+    .scene-chip {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 4px 12px;
+      border-radius: 100px;
+      margin-bottom: 12px;
+      z-index: 2;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .glow-ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(61, 220, 132, 0.15);
+      animation: pulseRing 2.4s ease-in-out infinite;
+      pointer-events: none;
+    }
+    .glow-ring:nth-child(1) { width: 260px; height: 260px; }
+    .glow-ring:nth-child(2) { width: 400px; height: 400px; animation-delay: 0.35s; }
+    @keyframes pulseRing {
+      0%, 100% { opacity: 0.2; transform: scale(1); }
+      50% { opacity: 0.55; transform: scale(1.02); }
+    }
+
+    #s0 {
+      background: radial-gradient(ellipse at 50% 58%, #0f1a24 0%, #08080f 72%);
+    }
+    .logo-hero {
+      z-index: 2;
+      text-align: center;
+      animation: logoReveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      opacity: 0;
+    }
+    @keyframes logoReveal {
+      from { opacity: 0; filter: blur(14px); transform: scale(0.9); }
+      to { opacity: 1; filter: blur(0); transform: scale(1); }
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: rgba(61, 220, 132, 0.08);
+      border: 1px solid rgba(61, 220, 132, 0.28);
+      border-radius: 100px;
+      margin-bottom: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #3DDC84;
+      letter-spacing: 0.5px;
+    }
+    .hero-badge .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #3DDC84;
+      box-shadow: 0 0 10px rgba(61, 220, 132, 0.7);
+    }
+    .hero-title {
+      font-size: 30px;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.8px;
+      line-height: 1.15;
+    }
+    .hero-title .appium { color: #9b8bff; }
+    .hero-title .app { color: #3DDC84; }
+    .hero-sub {
+      margin-top: 10px;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.35);
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+    }
+    .hero-stack {
+      margin-top: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+    }
+    .stack-pill {
+      font-size: 9.5px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .real-shot {
+      width: min(760px, 94%);
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      z-index: 2;
+      animation: slideUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      opacity: 0;
+      transform: translateY(18px);
+      background: #161622;
+    }
+    @keyframes slideUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .real-shot img {
+      width: 100%;
+      display: block;
+    }
+    .real-shot.contain img {
+      max-height: 370px;
+      object-fit: contain;
+      object-position: center top;
+      background: #0d0d14;
+    }
+    .caption {
+      margin-top: 10px;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.35);
+      z-index: 2;
+      text-align: center;
+    }
+
+    /* Phone mock */
+    .phone-row {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      z-index: 2;
+      animation: slideUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    .phone {
+      width: 200px;
+      height: 400px;
+      border-radius: 28px;
+      background: #1a1a1e;
+      padding: 10px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), inset 0 0 0 2px #2a2a2e;
+      position: relative;
+    }
+    .phone::before {
+      content: '';
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 56px;
+      height: 5px;
+      background: #2a2a2e;
+      border-radius: 4px;
+      z-index: 5;
+    }
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      border-radius: 20px;
+      background: #12121e;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.85);
+    }
+    .status-bar {
+      height: 22px;
+      background: #0d0d18;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+      font-size: 8px;
+      color: rgba(255, 255, 255, 0.4);
+      flex-shrink: 0;
+    }
+    .app-body {
+      flex: 1;
+      padding: 14px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .app-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 4px;
+      color: #ffffff;
+    }
+    .field {
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 9px;
+      color: rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.04);
+      transition: border-color 0.3s, color 0.3s;
+    }
+    .field.filled {
+      color: rgba(255, 255, 255, 0.9);
+      border-color: #3DDC84;
+      background: rgba(61, 220, 132, 0.06);
+    }
+    .btn-primary {
+      margin-top: auto;
+      background: #3DDC84;
+      color: #0a2e1a;
+      font-weight: 700;
+      text-align: center;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      opacity: 0.35;
+      transition: opacity 0.3s, transform 0.2s;
+    }
+    .btn-primary.active {
+      opacity: 1;
+      transform: scale(1.02);
+    }
+    .rule-card {
+      background: rgba(61, 220, 132, 0.08);
+      border: 1px solid rgba(61, 220, 132, 0.3);
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 12px;
+      color: #3DDC84;
+      opacity: 0;
+      transform: scale(0.95);
+      transition: all 0.5s;
+    }
+    .rule-card.show { opacity: 1; transform: scale(1); }
+    .round-chip {
+      display: inline-block;
+      padding: 4px 8px;
+      background: rgba(123, 92, 245, 0.18);
+      color: #b0a0ff;
+      border-radius: 6px;
+      font-size: 8px;
+      font-weight: 600;
+      margin-right: 4px;
+      opacity: 0;
+      animation: chipIn 0.4s forwards;
+    }
+    @keyframes chipIn {
+      to { opacity: 1; }
+    }
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+      margin-top: 6px;
+    }
+    .score-cell {
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 4px;
+      padding: 5px 2px;
+      text-align: center;
+      font-size: 8px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.35);
+    }
+    .score-cell.filled { background: rgba(61, 220, 132, 0.15); color: #3DDC84; }
+    .member-tag {
+      font-size: 8px;
+      padding: 3px 6px;
+      background: rgba(230, 81, 0, 0.15);
+      border-radius: 4px;
+      color: #ff9057;
+      margin: 2px;
+      display: inline-block;
+    }
+
+    .code-panel {
+      width: 280px;
+      background: #111118;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-family: ui-monospace, 'SF Mono', monospace;
+      font-size: 8.5px;
+      line-height: 1.55;
+      color: #c8c8d0;
+      box-shadow: 0 10px 32px rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(123, 92, 245, 0.22);
+    }
+    .code-panel .kw { color: #c792ea; }
+    .code-panel .ty { color: #82aaff; }
+    .code-panel .fn { color: #ffcb6b; }
+    .code-panel .st { color: #c3e88d; }
+    .code-panel .cm { color: #546e7a; }
+    .code-line.highlight {
+      background: rgba(61, 220, 132, 0.1);
+      margin: 0 -8px;
+      padding: 0 8px;
+      border-left: 2px solid #3DDC84;
+    }
+
+    /* Results */
+    #s5 { background: #0a0a12; }
+    .results-layout {
+      display: flex;
+      gap: 14px;
+      width: min(760px, 94%);
+      align-items: stretch;
+      z-index: 2;
+      animation: slideUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    .results-wrap { flex: 1; min-width: 0; }
+    .result-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 8px;
+      margin-bottom: 4px;
+    }
+    .result-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .dot-pass { background: #3DDC84; box-shadow: 0 0 8px rgba(61, 220, 132, 0.55); }
+    .dot-fail { background: #f5a623; box-shadow: 0 0 8px rgba(245, 166, 35, 0.45); }
+    .result-name {
+      font-size: 9px;
+      color: rgba(255, 255, 255, 0.5);
+      font-family: ui-monospace, monospace;
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .result-pass { font-size: 9px; color: #3DDC84; font-weight: 700; }
+    .result-fail { font-size: 9px; color: #f5a623; font-weight: 700; }
+    .result-summary {
+      margin-top: 8px;
+      padding: 9px 12px;
+      background: rgba(61, 220, 132, 0.06);
+      border: 1px solid rgba(61, 220, 132, 0.22);
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .summary-text { font-size: 10px; color: #3DDC84; }
+    .summary-count { font-size: 18px; font-weight: 800; color: #3DDC84; }
+    .summary-count .of { font-size: 11px; color: rgba(255, 255, 255, 0.35); font-weight: 600; }
+
+    .split-wrap {
+      display: flex;
+      gap: 12px;
+      width: min(760px, 94%);
+      z-index: 2;
+      animation: slideUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    .split-wrap .real-shot {
+      flex: 1;
+      width: auto;
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
+    .split-wrap .real-shot img {
+      max-height: 300px;
+      object-fit: cover;
+      object-position: left top;
+    }
+
+    #s8 {
+      background: radial-gradient(ellipse at 50% 50%, #0f1020 0%, #08080f 72%);
+    }
+    .final-wrap {
+      z-index: 2;
+      text-align: center;
+      animation: logoReveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      opacity: 0;
+    }
+    .final-icon {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 16px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #7B5CF5 0%, #3DDC84 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      box-shadow: 0 8px 36px rgba(123, 92, 245, 0.4);
+    }
+    .final-text {
+      font-size: 22px;
+      font-weight: 800;
+      color: #ffffff;
+    }
+    .final-text .appium { color: #9b8bff; }
+    .final-sub {
+      margin-top: 8px;
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.35);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .final-link {
+      display: inline-block;
+      margin-top: 14px;
+      font-size: 10px;
+      color: #9b8bff;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(123, 92, 245, 0.35);
+    }
+
+    #progress-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.06);
+      z-index: 10;
+    }
+    #progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #7B5CF5, #3DDC84);
+      width: 0%;
+      transition: width 0.1s linear;
+    }
+    #indicators {
+      position: absolute;
+      bottom: 11px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 5px;
+      z-index: 10;
+    }
+    .ind {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      transition: all 0.3s;
+    }
+    .ind.active { width: 16px; border-radius: 2px; background: rgba(255, 255, 255, 0.6); }
+  </style>
+</head>
+<body>
+
+<div id="stage">
+  <div id="particles"></div>
+
+  <!-- S0: Intro -->
+  <div class="scene active" id="s0">
+    <div class="glow-ring"></div>
+    <div class="glow-ring"></div>
+    <div class="logo-hero">
+      <div class="hero-badge"><span class="dot"></span> Mobile E2E Automation</div>
+      <div class="hero-title">
+        <span class="appium">Appium</span> × <span class="app">Toucher</span><br />Bowls Scoring
+      </div>
+      <div class="hero-sub">Java · TestNG · Page Object Model</div>
+      <div class="hero-stack">
+        <span class="stack-pill">UiAutomator2</span>
+        <span class="stack-pill">Allure Reports</span>
+        <span class="stack-pill">BrowserStack</span>
+        <span class="stack-pill">Maven</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- S1: Project structure -->
+  <div class="scene" id="s1">
+    <div class="scene-chip">Framework</div>
+    <div class="real-shot contain">
+      <img src="assets/android-project-structure.png" alt="AndroidTesting Maven project structure" />
+    </div>
+    <div class="caption">LoginPage · ScorePage · AddUserPage · DriverFactory · testng.xml</div>
+  </div>
+
+  <!-- S2: Login flow (animated mock + POM) -->
+  <div class="scene" id="s2">
+    <div class="scene-chip">LoginPage.login()</div>
+    <div class="phone-row">
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+          <div class="app-body">
+            <div class="app-title">Sign In using account</div>
+            <div class="field" id="email-field">Enter Email Address</div>
+            <div class="field" id="pass-field">Enter Password</div>
+            <div class="btn-primary" id="signin-btn">Sign In</div>
+            <div class="rule-card" id="rules-card">Bowls Rules</div>
+          </div>
+        </div>
+      </div>
+      <div class="code-panel">
+        <div class="code-line"><span class="kw">public void</span> <span class="fn">login</span>(<span class="ty">String</span> email, <span class="ty">String</span> password) {</div>
+        <div class="code-line highlight" id="code-l1">  appTest.click(signInHeader);</div>
+        <div class="code-line highlight" id="code-l2">  appTest.write(usernameTXT, email);</div>
+        <div class="code-line highlight" id="code-l3">  appTest.write(passwordTXT, password);</div>
+        <div class="code-line highlight" id="code-l4">  appTest.click(loginBTN);</div>
+        <div class="code-line">  <span class="fn">validateLogin</span>(); <span class="cm">// Bowls Rules</span></div>
+        <div class="code-line">}</div>
+      </div>
+    </div>
+    <div class="caption">UiAutomator locators · test@outlook.com · openMobileApp1</div>
+  </div>
+
+  <!-- S3: Score + members flow -->
+  <div class="scene" id="s3">
+    <div class="scene-chip">ScorePage · AddUserPage</div>
+    <div class="phone-row">
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+          <div class="app-body">
+            <div class="app-title" style="color:#1a9d52">Scoring</div>
+            <div>
+              <span class="round-chip" style="animation-delay:0.1s">Round 1</span>
+              <span class="round-chip" style="animation-delay:0.35s">Round 2</span>
+              <span class="round-chip" style="animation-delay:0.6s">Round 3</span>
+            </div>
+            <div class="score-grid" id="score-grid">
+              <div class="score-cell">1</div><div class="score-cell">2</div><div class="score-cell">3</div><div class="score-cell">4</div>
+              <div class="score-cell">5</div><div class="score-cell">6</div><div class="score-cell">7</div><div class="score-cell">8</div>
+            </div>
+            <div style="margin-top:8px;font-size:8px;font-weight:600;color:#666">WE Team</div>
+            <div>
+              <span class="member-tag">Alice123</span>
+              <span class="member-tag">Bob456</span>
+              <span class="member-tag">Charlie789</span>
+            </div>
+            <div style="font-size:8px;font-weight:600;color:#666;margin-top:4px">They Team</div>
+            <div>
+              <span class="member-tag">Dave101</span>
+              <span class="member-tag">Eve202</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="code-panel">
+        <div class="code-line"><span class="cm">// openMobileApp — full smoke</span></div>
+        <div class="code-line">scorePage.<span class="fn">rulescreen</span>();</div>
+        <div class="code-line">scorePage.<span class="fn">AddRoundName</span>(<span class="st">"Round 1"</span>);</div>
+        <div class="code-line">scorePage.<span class="fn">AddScore</span>(numbers);</div>
+        <div class="code-line highlight">addUserPage.<span class="fn">Add_WE_Members</span>(names, 5);</div>
+        <div class="code-line highlight">addUserPage.<span class="fn">Add_They_Members</span>(names, 5);</div>
+        <div class="code-line">scorePage.<span class="fn">changeround</span>();</div>
+      </div>
+    </div>
+    <div class="caption">3 rounds · swipe scroll · invalid member → openMobileApp3 fails</div>
+  </div>
+
+  <!-- S4: BrowserStack config -->
+  <div class="scene" id="s4">
+    <div class="scene-chip">Cloud Execution</div>
+    <div class="real-shot contain">
+      <img src="assets/browserstack-dashboard.png" alt="BrowserStack Test Reporting dashboard" />
+    </div>
+    <div class="caption">mvn test -Pbrowserstack · Pixel 8 · network logs · debug</div>
+  </div>
+
+  <!-- S5: Smoke suite results -->
+  <div class="scene" id="s5">
+    <div class="scene-chip">SmokeTesting Suite · 7 tests</div>
+    <div class="results-layout">
+      <div class="results-wrap">
+        <div class="result-row">
+          <div class="result-dot dot-pass"></div>
+          <div class="result-name">openMobileApp</div>
+          <div class="result-pass">PASS</div>
+        </div>
+        <div class="result-row">
+          <div class="result-dot dot-pass"></div>
+          <div class="result-name">openMobileApp1</div>
+          <div class="result-pass">PASS</div>
+        </div>
+        <div class="result-row">
+          <div class="result-dot dot-fail"></div>
+          <div class="result-name">openMobileApp2</div>
+          <div class="result-fail">FAIL</div>
+        </div>
+        <div class="result-row">
+          <div class="result-dot dot-fail"></div>
+          <div class="result-name">openMobileApp3</div>
+          <div class="result-fail">FAIL</div>
+        </div>
+        <div class="result-row">
+          <div class="result-dot dot-pass"></div>
+          <div class="result-name">openMobileApp4</div>
+          <div class="result-pass">PASS</div>
+        </div>
+        <div class="result-summary">
+          <div class="summary-text">Allure run · 42.85% · Test defects</div>
+          <div class="summary-count">3<span class="of">/7</span></div>
+        </div>
+      </div>
+      <div class="real-shot" style="flex:1.1;animation:none;opacity:1;transform:none">
+        <img src="assets/allure-dashboard.png" alt="Allure Report dashboard — SmokeTesting" style="max-height:300px;object-fit:cover;object-position:left top" />
+      </div>
+    </div>
+  </div>
+
+  <!-- S6: Allure full -->
+  <div class="scene" id="s6">
+    <div class="scene-chip">Allure Report</div>
+    <div class="real-shot contain">
+      <img src="assets/allure-dashboard.png" alt="Allure Report overview — 42.85% pass rate" />
+    </div>
+    <div class="caption">io.qameta.allure.testng.AllureTestNg · 36m run · suites &amp; categories</div>
+  </div>
+
+  <!-- S7: End -->
+  <div class="scene" id="s7">
+    <div class="glow-ring"></div>
+    <div class="final-wrap">
+      <div class="final-icon">📱</div>
+      <div class="final-text"><span class="appium">Appium</span> Mobile CI</div>
+      <div class="final-sub">POM · Allure · BrowserStack · TestNG</div>
+      <a class="final-link" href="https://github.com/ZeeshanMustafaJumabhoy/AndroidTesting" target="_blank" rel="noopener">github.com/ZeeshanMustafaJumabhoy/AndroidTesting</a>
+    </div>
+  </div>
+
+  <div id="progress-bar"><div id="progress-fill"></div></div>
+  <div id="indicators"></div>
+</div>
+
+<script>
+  const scenes = ['s0', 's1', 's2', 's3', 's4', 's5', 's6', 's7'];
+  const durations = [3200, 4000, 5000, 5000, 4000, 5200, 3800, 3200];
+
+  let cur = 0, timer = null, playing = false, startTime = 0, raf = 0;
+  let loginAnimTimer = null;
+
+  function createParticles() {
+    const p = document.getElementById('particles');
+    for (let i = 0; i < 12; i++) {
+      const d = document.createElement('div');
+      d.className = 'particle';
+      const sz = Math.random() * 3 + 1;
+      d.style.cssText = `width:${sz}px;height:${sz}px;left:${Math.random() * 100}%;animation-duration:${3 + Math.random() * 4}s;animation-delay:${Math.random() * 3}s;`;
+      p.appendChild(d);
+    }
+  }
+
+  function buildIndicators() {
+    const c = document.getElementById('indicators');
+    scenes.forEach((_, i) => {
+      const d = document.createElement('div');
+      d.className = 'ind' + (i === 0 ? ' active' : '');
+      c.appendChild(d);
+    });
+  }
+
+  function resetLoginMock() {
+    const email = document.getElementById('email-field');
+    const pass = document.getElementById('pass-field');
+    const btn = document.getElementById('signin-btn');
+    const rules = document.getElementById('rules-card');
+    if (!email) return;
+    email.textContent = 'Enter Email Address';
+    email.classList.remove('filled');
+    pass.textContent = 'Enter Password';
+    pass.classList.remove('filled');
+    btn.classList.remove('active');
+    rules.classList.remove('show');
+    ['code-l1','code-l2','code-l3','code-l4'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('highlight');
+    });
+  }
+
+  function runLoginAnimation() {
+    resetLoginMock();
+    if (loginAnimTimer) clearTimeout(loginAnimTimer);
+    const steps = [
+      () => { document.getElementById('code-l1')?.classList.add('highlight'); },
+      () => {
+        const e = document.getElementById('email-field');
+        e.textContent = 'test@outlook.com';
+        e.classList.add('filled');
+        document.getElementById('code-l2')?.classList.add('highlight');
+      },
+      () => {
+        const p = document.getElementById('pass-field');
+        p.textContent = '••••••••';
+        p.classList.add('filled');
+        document.getElementById('code-l3')?.classList.add('highlight');
+      },
+      () => {
+        document.getElementById('signin-btn')?.classList.add('active');
+        document.getElementById('code-l4')?.classList.add('highlight');
+      },
+      () => document.getElementById('rules-card')?.classList.add('show'),
+    ];
+    steps.forEach((fn, i) => {
+      loginAnimTimer = setTimeout(fn, 600 + i * 700);
+    });
+  }
+
+  function runScoreAnimation() {
+    const cells = document.querySelectorAll('#score-grid .score-cell');
+    cells.forEach((c, i) => {
+      setTimeout(() => c.classList.add('filled'), 400 + i * 120);
+    });
+  }
+
+  function resetScoreMock() {
+    document.querySelectorAll('#score-grid .score-cell').forEach(c => c.classList.remove('filled'));
+  }
+
+  function setScene(idx) {
+    scenes.forEach((id, i) => {
+      document.getElementById(id).classList.toggle('active', i === idx);
+    });
+    document.querySelectorAll('.ind').forEach((d, i) => d.classList.toggle('active', i === idx));
+    if (idx === 2) runLoginAnimation();
+    if (idx === 3) { resetScoreMock(); runScoreAnimation(); }
+    if (idx !== 2) resetLoginMock();
+    if (idx !== 3) resetScoreMock();
+  }
+
+  function updateProgress() {
+    if (!playing) return;
+    const pct = Math.min(((Date.now() - startTime) / durations[cur]) * 100, 100);
+    document.getElementById('progress-fill').style.width = pct + '%';
+    raf = requestAnimationFrame(updateProgress);
+  }
+
+  function nextScene() {
+    cur = (cur + 1) % scenes.length;
+    setScene(cur);
+    document.getElementById('progress-fill').style.width = '0%';
+    startTime = Date.now();
+    timer = setTimeout(nextScene, durations[cur]);
+  }
+
+  function startShow() {
+    cur = 0;
+    playing = true;
+    setScene(0);
+    document.getElementById('progress-fill').style.width = '0%';
+    startTime = Date.now();
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(updateProgress);
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(nextScene, durations[0]);
+  }
+
+  createParticles();
+  buildIndicators();
+  startShow();
+</script>
+</body>
+</html>
